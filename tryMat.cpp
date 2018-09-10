@@ -15,7 +15,8 @@ int main(int argc, char *argv[])
     Mat A, B, C;
     PetscInt m,low,lowb,highb,high,diagElements,nonDiagElements,indexSelect;
     PetscBool mGiven = PETSC_FALSE;
-    
+    PetscScalar value;
+    int pr =0;
     // double value,values[m];
 
     uniform_real_distribution<double> randomDouble(0,100000);
@@ -30,6 +31,7 @@ int main(int argc, char *argv[])
         PetscPrintf(comm,"Improper Arguements\n");
         return -1;
     }
+    PetscOptionsGetInt(PETSC_NULL,PETSC_NULL, "-showMat", &pr,&mGiven);
 
     MatCreate(comm,&A);
     MatSetSizes(A,PETSC_DECIDE,PETSC_DECIDE, m,m);
@@ -155,23 +157,29 @@ int main(int argc, char *argv[])
             }
         }
     }
+    auto begin = std::chrono::steady_clock::now();
     MatAssemblyBegin(A,MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(A,MAT_FINAL_ASSEMBLY);
     MatAssemblyBegin(B,MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(B,MAT_FINAL_ASSEMBLY);
 
-    MatView(A,PETSC_VIEWER_DRAW_WORLD);
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-    MatView(B,PETSC_VIEWER_DRAW_WORLD);
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     MatCreate(comm,&C);
     MatMatMultSymbolic(A,B,PETSC_DEFAULT,&C);
     MatMatMultNumeric(A,B,C);
-    MatView(C,PETSC_VIEWER_DRAW_WORLD);
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
+    auto end = std::chrono::steady_clock::now();
+    if(pr!=0){
+        MatView(B,PETSC_VIEWER_DRAW_WORLD);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        MatView(A,PETSC_VIEWER_DRAW_WORLD);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        MatView(C,PETSC_VIEWER_DRAW_WORLD);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    }
     PetscFinalize();
+    cout<<"Time elapsed: "<<std::chrono::duration_cast<std::chrono::milliseconds>(end-begin).count()<<"ms"<<endl;
+    // cout<<value<<endl;
     return 0;
 }
