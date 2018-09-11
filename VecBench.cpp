@@ -71,9 +71,10 @@ int main(int argc, char *argv[])
     VecGetValues(V3,1,&index3,&value);
     // VecView(V3,PETSC_VIEWER_STDOUT_WORLD);
     auto end = std::chrono::steady_clock::now();
-    cout<<"Time elapsed: "<<std::chrono::duration_cast<std::chrono::milliseconds>(end-begin).count()<<"ms"<<endl;
-    cout<<value<<endl;
-
+//    cout<<value<<endl;
+    PetscSynchronizedPrintf(PETSC_COMM_WORLD,"Time elapsed: %d ms\n",std::chrono::duration_cast<std::chrono::milliseconds>(end-begin).count());
+    // cout<<value<<endl;
+    PetscSynchronizedFlush(comm,PETSC_STDOUT);
     PetscFinalize();
     return 0;
 }

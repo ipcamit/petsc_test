@@ -60,9 +60,9 @@ int main(int argc, char *argv[])
     MatGetOwnershipRange(A,&low,&high);
     MatGetOwnershipRange(B,&lowb,&highb);
 
-    PetscSynchronizedPrintf(PETSC_COMM_WORLD,"A rank = %d:  Low, High = %d,%d\n Calculated Rows:%d\n", rank,low,high,approximateRows);
-    PetscSynchronizedPrintf(PETSC_COMM_WORLD,"B rank = %d:  Low, High = %d,%d\n Calculated Rows:%d\n", rank,lowb,highb,approximateRows);
-    PetscSynchronizedFlush(comm,PETSC_STDOUT);
+    //PetscSynchronizedPrintf(PETSC_COMM_WORLD,"A rank = %d:  Low, High = %d,%d\n Calculated Rows:%d\n", rank,low,high,approximateRows);
+    //PetscSynchronizedPrintf(PETSC_COMM_WORLD,"B rank = %d:  Low, High = %d,%d\n Calculated Rows:%d\n", rank,lowb,highb,approximateRows);
+    //PetscSynchronizedFlush(comm,PETSC_STDOUT);
 
     int diagElementsPerRank = static_cast<int>(diagElements/size);
     int nonDiagElementsPerRank = static_cast<int>(nonDiagElements/size);
@@ -178,8 +178,10 @@ int main(int argc, char *argv[])
         MatView(C,PETSC_VIEWER_DRAW_WORLD);
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
-    PetscFinalize();
-    cout<<"Time elapsed: "<<std::chrono::duration_cast<std::chrono::milliseconds>(end-begin).count()<<"ms"<<endl;
+    
+    PetscSynchronizedPrintf(PETSC_COMM_WORLD,"Time elapsed: %d ms\n",std::chrono::duration_cast<std::chrono::milliseconds>(end-begin).count());
     // cout<<value<<endl;
-    return 0;
+    PetscSynchronizedFlush(comm,PETSC_STDOUT);    
+    PetscFinalize();
+return 0;
 }
